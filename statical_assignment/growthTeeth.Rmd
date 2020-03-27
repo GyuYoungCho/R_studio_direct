@@ -1,0 +1,56 @@
+---
+title: "toothGrowth"
+author: "gyu"
+date: '2020 3 27 '
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## load data
+
+```{r cars}
+library(datasets)
+str(ToothGrowth)
+```
+## data summary
+```{r pressure, echo=FALSE}
+head(ToothGrowth)
+```
+```{r}
+summary(ToothGrowth)
+```
+check NA values
+```{r}
+sum(!complete.cases(ToothGrowth))
+```
+```{r}
+library(ggplot2)
+ToothGrowth$dose <- as.factor(ToothGrowth$dose)
+p <- ggplot(ToothGrowth, aes(x=dose, y=len,fill=dose)) +  geom_boxplot() +  ggtitle("Fig. 1 : dispersion of tooth growth by dose") + xlab("dose in mg") + ylab("tooth length")
+p
+```
+```{r}
+p1 <- ggplot(ToothGrowth, aes(x=supp, y=len,fill=supp)) +  geom_boxplot() +  ggtitle("Dispersion of tooth growth by delivery method") + xlab("delivery method") + ylab("tooth length")
+p1
+```
+# Hypothesis tests
+```{r}
+dose <- ToothGrowth$dose
+supp <- ToothGrowth$supp
+len <-  ToothGrowth$len
+
+t.test(len[supp == "VC"],len[supp == "OJ"], paired=FALSE)
+```
+the p-value is 0.06
+```{r}
+t.test(len[dose == 0.5],len[dose == 1], paired=FALSE)
+```
+the p-value is nearly 0, so we can obviously reject H0
+
+# Conclusion
+
+dose of Vitamin C is clearly a factor of growth of teeth for Guinea pigs
+delivery mode does not have any obvious impact on the teeth growth for Guinea pigs.
