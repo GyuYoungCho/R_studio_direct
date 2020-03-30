@@ -1,0 +1,84 @@
+---
+title: "course_project"
+author: "gyu"
+date: '2020 3 30 '
+output: html_document
+---
+# Couse prohect
+
+## a) preparation
+```{r setup, include=FALSE}
+library(ggplot2); library(caret)
+set.seed(1)
+```
+
+## b) data load
+```{r cars}
+train1 = read.csv('pml-training.csv',row.names = 1,header = T,)
+test1 = read.csv('pml-testing.csv',row.names = 1,header = T)
+str(train1)
+```
+
+## c) clean data
+
+there are many variables, and some contain many NA values.
+So get rid of these, ID, timestamp information
+```{r pressure, echo=FALSE}
+nalevel = sapply(train1,function(x) mean((is.na(x))|x==""))>0.9
+train1 = train1[,nalevel==F]
+nalevel = sapply(test1,function(x) mean(is.na(x)))>0.9
+test1 = test1[,nalevel==F]
+train1 = train1[,-c(1:4)]
+test1 = test1[,-c(1:4)]
+dim(train1);dim(test1)
+```
+And get rid of variable has low variation
+```{r}
+NZV = nearZeroVar(train1)
+train1 = train1[, -NZV]
+test1  = test1[, -NZV]
+dim(train1);dim(test1)
+
+```
+## d) Partition
+Prepare the data by splitting the training data into 70% as train data and 30% as test data.
+```{r}
+inTrain  = createDataPartition(train1$classe, p=0.7, list=FALSE)
+train_set = train1[inTrain, ]
+test_set  = train1[-inTrain, ]
+```
+
+## e) build model
+
+Use random forest and generalized boosted model
+and use cross-validation with K=5 for block overfitting
+```{r}
+control1 <- trainControl(method="cv", number=5, verboseIter=FALSE)
+```
+### random forest
+```{r}
+modrf <- train(classe~., data=train_set, method="rf",
+                          trControl=control1)
+predrf <- predict(modrf, newdata=test_set)
+confusionMatrix(predrf,test_set$classe)
+```
+### generalized boosted model
+```{r}
+modgbm <- train(classe~., data=train_set, method="gbm",
+               trControl=control1,verbose=FALSE)
+predgbm <- predict(modgbm, newdata=test_set)
+confusionMatrix(predgbm,test_set$classe)
+```
+## f) apply validation data
+two models get same conclusion.
+```{r}
+predva1 <- predict(modrf, newdata=test1)
+predva2 <- predict(modgbm, newdata=test1)
+print(predva1)
+
+```
+
+```{r}
+print(predva2)
+```
+
