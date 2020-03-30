@@ -3,11 +3,12 @@ title: "course_project"
 author: "gyu"
 date: '2020 3 30 '
 output: html_document
+keep_md: true
 ---
-# Couse prohect
+# Couse project
 
 ## a) preparation
-```{r setup, include=FALSE}
+```{r setup}
 library(ggplot2); library(caret)
 set.seed(1)
 ```
